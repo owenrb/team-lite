@@ -6,8 +6,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
@@ -20,6 +22,8 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import com.google.api.services.sheets.v4.SheetsScopes;
 
+@EnableWebSecurity
+@Configuration
 public class WebSecurityConfig  extends WebSecurityConfigurerAdapter{
 
     private static List<String> clients = Arrays.asList("google");
@@ -77,6 +81,8 @@ public class WebSecurityConfig  extends WebSecurityConfigurerAdapter{
 	
 
 	private ClientRegistration getRegistration(String client) {
+		
+		System.out.println("######" + client + "#######");
 
 		OAuthClient g = googleClient();
 		
