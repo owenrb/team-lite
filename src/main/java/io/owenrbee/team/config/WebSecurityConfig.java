@@ -40,7 +40,7 @@ public class WebSecurityConfig  extends WebSecurityConfigurerAdapter{
             	        )
             .authorizeRequests(a -> a
                 .antMatchers("/", "/login", "/error", "/webjars/**").permitAll()
-                .antMatchers("/*.ico", "/*.js", "/*.css").permitAll() // angular/front-end
+                .antMatchers("/*.ico", "/*.js", "/*.css", "/*.woff", "/*.woff2").permitAll() // angular/front-end
                 .anyRequest().authenticated()
             )
             .exceptionHandling(e -> e
