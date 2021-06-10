@@ -1,0 +1,14 @@
+<header>
+	<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+
+		<div class="container unauthenticated" *ngIf="!user.authenticated">
+			Login with Google: <a href="/oauth2/authorization/google">click here</a>
+		</div>
+		<div class="container authenticated" *ngIf="user.authenticated">
+			Logged in as: {{user.name}}
+			<div>
+				<button (click)="logout()" class="btn btn-primary">Logout</button>
+			</div>
+		</div>
+	</nav>
+</header>
