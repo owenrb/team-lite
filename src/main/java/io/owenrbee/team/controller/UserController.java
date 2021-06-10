@@ -22,6 +22,9 @@ public class UserController {
 		map.put("attributes", principal.getAttributes());
 		map.put("authenticated", Boolean.TRUE);
 		
+		map.put("name", principal.getAttribute("name"));
+		map.put("email", principal.getAttribute("email"));
+		
 		return map;
     }
 
