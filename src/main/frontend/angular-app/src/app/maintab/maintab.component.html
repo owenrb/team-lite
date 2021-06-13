@@ -1,1 +1,4 @@
-<div #widget></div>
+
+    <div class="w3-bar w3-gray">
+        <button class="w3-bar-item w3-button" *ngFor="let tab of tabs" routerLink="{{tab.link}}">{{tab.label}}</button>
+    </div>

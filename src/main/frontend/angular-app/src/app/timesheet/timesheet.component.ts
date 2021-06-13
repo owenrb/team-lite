@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnDestroy, ElementRef} from "@angular/core";
+import { Component, ViewChild, OnDestroy, ElementRef } from "@angular/core";
 import { ActivatedRoute } from '@angular/router';
 import { Grid as GridDHX } from "dhx-suite";
 import { HttpClientService } from '../service/http-client.service';
@@ -37,14 +37,24 @@ export class TimesheetComponent implements OnDestroy {
         { id: "supportTicket", header: [{ text: "Support Ticket" }] },
         { id: "customer", header: [{ text: "Customer" }] },
         { id: "summary", header: [{ text: "Summary" }] },
-        { id: "activity", header: [{ text: "Activity" }] },
-        { id: "category", header: [{ text: "Category" }] },
+        {
+          id: "activity", header: [{ text: "Activity" }],
+          editorType: "select", options: ["Coding", "Replication", "Analysis", "Unit Testing", "Functional Tesing", "Test Doc", "SIT", "Smoke Testing", "See Remarks"]
+        },
+        {
+          id: "category", header: [{ text: "Category" }],
+          editorType: "select", options: ["Support", "Delivery", "Internal"]
+        },
         { id: "date", header: [{ text: "Date" }] },
         { id: "regHours", header: [{ text: "Regular Hours" }], type: "number" },
         { id: "vaHours", header: [{ text: "Value Added Hours" }], type: "number" },
         { id: "otHours", header: [{ text: "OT Hours" }], type: "number" },
-        { id: "status", header: [{ text: "Status" }] },
+        {
+          id: "status", header: [{ text: "Status" }],
+          editorType: "select", options: ["In-Progress", "On-Hold", "Done"]
+        },
         { id: "remarks", header: [{ text: "Remarks" }] },
+        { id: "actions", header: [{ text: "Actions" }] },
       ],
       rowHeight: 60,
       autoWidth: true,
