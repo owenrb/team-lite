@@ -3,7 +3,10 @@ package io.owenrbee.team.controller;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +18,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,7 +31,7 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
 import io.owenrbee.team.model.Resource;
-
+import io.owenrbee.team.model.Timesheet;
 
 @RestController
 @RequestMapping("api/sheets")
@@ -35,10 +39,10 @@ public class SheetController {
 
 	private static final String APPLICATION_NAME = "TeamLite";
 	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-	
+
 	@Value("${doc.sheet.resourcemapping.id}")
 	private String resourceSheet;
-	
+
 	@Value("${doc.sheet.resourcemapping.range}")
 	private String resourceRange;
 
@@ -63,7 +67,8 @@ public class SheetController {
 	}
 
 	@GetMapping(path = "resources")
-	public List<Resource> getResources(@AuthenticationPrincipal OAuth2User principal) throws GeneralSecurityException, IOException {
+	public List<Resource> getResources(@AuthenticationPrincipal OAuth2User principal)
+			throws GeneralSecurityException, IOException {
 
 		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 		final String spreadsheetId = resourceSheet;
@@ -74,9 +79,9 @@ public class SheetController {
 		List<List<Object>> values = response.getValues();
 
 		List<Resource> result = new ArrayList<>();
-		
+
 		String userEmail = principal.getAttribute("email");
-		if(userEmail == null || userEmail.trim().isEmpty()) {
+		if (userEmail == null || userEmail.trim().isEmpty()) {
 			return result;
 		}
 
@@ -86,10 +91,10 @@ public class SheetController {
 			for (List<Object> row : values) {
 				// Print columns A and E, which correspond to indices 0 and 4.
 				String email = (String) row.get(0);
-				
-				if(!userEmail.equals(email))
+
+				if (!userEmail.equals(email))
 					continue;
-				
+
 				String role = (String) row.get(1);
 				String sheetid = (String) row.get(2);
 				String sheetType = (String) row.get(3);
@@ -107,6 +112,108 @@ public class SheetController {
 		}
 
 		return result;
+	}
+
+	@GetMapping(path = "timesheets/{sheetId}")
+	public List<Timesheet> getTimesheets(@PathVariable("sheetId") String spreadsheetId)
+			throws GeneralSecurityException, IOException {
+
+		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+		final String range = "Timesheet!A2:L";
+		Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(getToken()))
+				.setApplicationName(APPLICATION_NAME).build();
+		ValueRange response = service.spreadsheets().values().get(spreadsheetId, range).execute();
+		List<List<Object>> values = response.getValues();
+
+		if (values != null) {
+			return values.stream().map((row) -> toTimesheet(row)).collect(Collectors.toList());
+		}
+
+		return Collections.emptyList();
+	}
+
+	private Timesheet toTimesheet(List<Object> row) {
+
+		Timesheet timesheet = new Timesheet();
+
+		int columns = row.size();
+
+		int column = 0;
+
+		if (columns > column) {
+			String value = (String) row.get(column++);
+			timesheet.setProductTicket(value);
+		}
+
+		if (columns > column) {
+			String value = (String) row.get(column++);
+			timesheet.setSupportTicket(value);
+		}
+
+		if (columns > column) {
+			String value = (String) row.get(column++);
+			timesheet.setCustomer(value);
+		}
+
+		if (columns > column) {
+			String value = (String) row.get(column++);
+			timesheet.setSummary(value);
+		}
+
+		if (columns > column) {
+			String value = (String) row.get(column++);
+			timesheet.setActivity(value);
+		}
+
+		if (columns > column) {
+			String value = (String) row.get(column++);
+			timesheet.setCategory(value);
+		}
+
+		if (columns > column) {
+			String value = (String) row.get(column++);
+			
+			// TODO
+			System.out.println(value);
+			
+			timesheet.setDate(new Date());
+		}
+
+		if (columns > column) {
+			String value = (String) row.get(column++);
+			try {
+				timesheet.setRegHours(Float.valueOf(value));
+			} catch (Exception e) {
+			}
+		}
+
+		if (columns > column) {
+			String value = (String) row.get(column++);
+			try {
+				timesheet.setVaHours(Float.valueOf(value));
+			} catch (Exception e) {
+			}
+		}
+
+		if (columns > column) {
+			String value = (String) row.get(column++);
+			try {
+				timesheet.setOtHours(Float.valueOf(value));
+			} catch (Exception e) {
+			}
+		}
+
+		if (columns > column) {
+			String value = (String) row.get(column++);
+			timesheet.setStatus(value);
+		}
+
+		if (columns > column) {
+			String value = (String) row.get(column++);
+			timesheet.setRemarks(value);
+		}
+
+		return timesheet;
 	}
 
 	public String getToken() {

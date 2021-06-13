@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { User } from '../model/User';
 import { Resource } from '../model/Resource';
+import { Timesheet } from '../model/Timesheet';
 
 
 @Injectable({
@@ -21,6 +22,10 @@ export class HttpClientService {
 
 	getUserResources() {
 		return this.httpClient.get<Resource[]>('/api/sheets/resources')
+	}
+
+	getUserTimesheets(sheetId: string) {
+		return this.httpClient.get<Timesheet[]>('/api/sheets/timesheets/' + sheetId)
 	}
 	
 }

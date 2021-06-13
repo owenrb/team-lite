@@ -6,17 +6,21 @@ import { AppComponent } from './app.component';
 import { MenuComponent } from './menu/menu.component';
 import { HttpClientModule } from '@angular/common/http';
 import { MaintabComponent } from './maintab/maintab.component';
+import { TimesheetComponent } from './timesheet/timesheet.component';
+import { WelcomeComponent } from './welcome/welcome.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     MenuComponent,
-    MaintabComponent
+    MaintabComponent,
+    TimesheetComponent,
+    WelcomeComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-	HttpClientModule
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]

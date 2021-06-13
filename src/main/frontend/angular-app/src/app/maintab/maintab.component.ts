@@ -1,37 +1,48 @@
-import { Component, ViewChild, OnDestroy, ElementRef, Input } from "@angular/core";
-import { Tabbar } from "dhx-suite";
+import { Component, OnInit } from "@angular/core";
+import { Router } from '@angular/router';
 import { HttpClientService } from '../service/http-client.service';
+import { Tab } from '../model/Tab'
 
 @Component({
   selector: 'app-maintab',
   templateUrl: './maintab.component.html',
   styleUrls: ['./maintab.component.css']
 })
-export class MaintabComponent implements OnDestroy {
+export class MaintabComponent implements OnInit {
 
-  @ViewChild("widget", { static: true })
-  container: ElementRef | undefined
-  tab: Tabbar | undefined
+  tabs: Array<Tab> 
 
-  constructor(private httpClientService: HttpClientService) { }
+  constructor(
+    private httpClientService: HttpClientService,
+    private router: Router) {
+      this.tabs = []
+  }
 
   ngOnInit(): void {
-    this.tab = new Tabbar(this.container?.nativeElement, {
-      views: [
-        { tab: "Welcome", css: "panel flex" }
-      ]
-    })
 
+    var welcome = new Tab();
+    welcome.label = 'Welcome'
+    welcome.link = '/team/welcome'
+
+    this.tabs.push(welcome);
+
+    // retrieve tab info from the server
     this.httpClientService.getUserResources().subscribe(list => {
-      list.forEach((resource) => {
-        this.tab?.addTab({tab: resource.sheetType, css:"panel flex"}, 0)
+      list.forEach((resource, index) => {
+
+        if(resource?.sheetType == 'Timesheet') {
+          var tab = new Tab();
+          tab.label = 'Timesheet'
+          tab.link = '/team/timesheet/' + resource.sheetId
+
+          this.tabs.push(tab);
+
+        } else {
+          console.log('Unhandled resource type: ' + resource.sheetType)
+        }
+
       })
     })
   }
 
-  ngOnDestroy() {
-    if (this.tab) {
-      this.tab.destructor()
-    }
-  }
 }

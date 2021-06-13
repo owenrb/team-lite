@@ -9,9 +9,12 @@ import { User } from './model/User';
 export class AppComponent {
   title = 'team-lite';
 
+  timesheetId: string | undefined
+
 	public loggedinUser: User = new User();
 
 	userLoggedIn(user: User) {
 		this.loggedinUser = user
 	}
+
 }
