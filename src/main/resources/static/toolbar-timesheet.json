@@ -1,0 +1,11 @@
+[   
+    {
+        "id": "add",
+        "icon": "dxi dxi-plus",
+        "value": "Add",
+        "count": 0
+    },
+    {
+        "type": "separator"
+    }
+]

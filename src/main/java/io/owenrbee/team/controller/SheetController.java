@@ -7,38 +7,25 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.sheets.v4.Sheets;
-import com.google.api.services.sheets.v4.model.ValueRange;
-
+import io.owenrbee.team.bean.GSheetHelper;
 import io.owenrbee.team.model.Resource;
 import io.owenrbee.team.model.Timesheet;
 
 @RestController
 @RequestMapping("api/sheets")
 public class SheetController {
-
-	private static final String APPLICATION_NAME = "TeamLite";
-	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
 	@Value("${doc.sheet.resourcemapping.id}")
 	private String resourceSheet;
@@ -48,21 +35,15 @@ public class SheetController {
 
 	@Autowired
 	private OAuth2AuthorizedClientService clientService;
+	
+	@Autowired
+	private GSheetHelper gsheetHelper;
+
 
 	@GetMapping
 	public String getBase() {
 
-		SecurityContext securityContext = SecurityContextHolder.getContext();
-		OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) securityContext.getAuthentication();
-
-		String regId = oauth2Token.getAuthorizedClientRegistrationId();
-		String name = oauth2Token.getName();
-		OAuth2AuthorizedClient client = clientService.loadAuthorizedClient(regId, name);
-
-		System.out.println(String.format("%s : %s ==> %s", regId, name, client));
-
-		String refreshToken = client.getAccessToken().getTokenValue();
-
+		String refreshToken = gsheetHelper.refreshToken(clientService);
 		return "this is the base! " + refreshToken;
 	}
 
@@ -70,13 +51,7 @@ public class SheetController {
 	public List<Resource> getResources(@AuthenticationPrincipal OAuth2User principal)
 			throws GeneralSecurityException, IOException {
 
-		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-		final String spreadsheetId = resourceSheet;
-		final String range = resourceRange;
-		Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(getToken()))
-				.setApplicationName(APPLICATION_NAME).build();
-		ValueRange response = service.spreadsheets().values().get(spreadsheetId, range).execute();
-		List<List<Object>> values = response.getValues();
+		List<List<Object>> values = gsheetHelper.fetch(clientService, resourceSheet, resourceRange);
 
 		List<Resource> result = new ArrayList<>();
 
@@ -118,23 +93,21 @@ public class SheetController {
 	public List<Timesheet> getTimesheets(@PathVariable("sheetId") String spreadsheetId)
 			throws GeneralSecurityException, IOException {
 
-		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 		final String range = "Timesheet!A2:L";
-		Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(getToken()))
-				.setApplicationName(APPLICATION_NAME).build();
-		ValueRange response = service.spreadsheets().values().get(spreadsheetId, range).execute();
-		List<List<Object>> values = response.getValues();
+		List<List<Object>> values =  gsheetHelper.fetch(clientService, spreadsheetId, range);
 
 		if (values != null) {
-			return values.stream().map((row) -> toTimesheet(row)).collect(Collectors.toList());
+			return IntStream.range(0, values.size()).mapToObj(i -> toTimesheet(values.get(i), i+2))
+					.collect(Collectors.toList());
 		}
 
 		return Collections.emptyList();
 	}
 
-	private Timesheet toTimesheet(List<Object> row) {
+	private Timesheet toTimesheet(List<Object> row, int rowId) {
 
 		Timesheet timesheet = new Timesheet();
+		timesheet.setRow(rowId);
 
 		int columns = row.size();
 
@@ -216,24 +189,4 @@ public class SheetController {
 		return timesheet;
 	}
 
-	public String getToken() {
-		String token = null;
-
-		SecurityContext securityContext = SecurityContextHolder.getContext();
-		OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) securityContext.getAuthentication();
-
-		String regId = oauth2Token.getAuthorizedClientRegistrationId();
-		String name = oauth2Token.getName();
-		OAuth2AuthorizedClient client = clientService.loadAuthorizedClient(regId, name);
-
-		System.out.println(String.format("%s : %s ==> %s", regId, name, client));
-
-		token = client.getAccessToken().getTokenValue();
-
-		return token;
-	}
-
-	private GoogleCredential getCredentials(String token) {
-		return new GoogleCredential().setAccessToken(token);
-	}
 }

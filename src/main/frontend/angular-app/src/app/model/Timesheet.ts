@@ -1,5 +1,5 @@
 export class Timesheet {
-
+	row = 0
 	productTicket = ''
 	supportTicket = ''
 	customer = ''

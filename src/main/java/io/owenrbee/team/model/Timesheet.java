@@ -4,6 +4,7 @@ import java.util.Date;
 
 public class Timesheet {
 	
+	private int row;
 	private String productTicket;
 	private String supportTicket;
 	private String customer;
@@ -88,6 +89,12 @@ public class Timesheet {
 	}
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
+	}
+	public int getRow() {
+		return row;
+	}
+	public void setRow(int row) {
+		this.row = row;
 	}
 
 }

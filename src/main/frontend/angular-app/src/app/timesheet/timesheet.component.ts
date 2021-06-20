@@ -1,6 +1,6 @@
 import { Component, ViewChild, OnDestroy, ElementRef } from "@angular/core";
 import { ActivatedRoute } from '@angular/router';
-import { Grid as GridDHX } from "dhx-suite";
+import { Grid as GridDHX, Toolbar as ToolbarDHX } from "dhx-suite";
 import { HttpClientService } from '../service/http-client.service';
 import { Timesheet } from '../model/Timesheet'
 
@@ -12,8 +12,12 @@ import { Timesheet } from '../model/Timesheet'
 })
 export class TimesheetComponent implements OnDestroy {
 
-  @ViewChild("widget1", { static: true })
-  container: ElementRef | undefined;
+  @ViewChild("toolbarWidget", { static: true })
+  toolbarContainer: ElementRef | undefined;
+  toolbar: ToolbarDHX | undefined;
+
+  @ViewChild("gridWidget", { static: true })
+  gridContainer: ElementRef | undefined;
   grid: GridDHX | undefined;
   timesheets: Array<Timesheet>
   sheetId: string | null
@@ -26,15 +30,29 @@ export class TimesheetComponent implements OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log('init grid...')
-    console.log('cont: ' + this.container)
+    console.log('init tooblar...');
+    this.toolbar = new ToolbarDHX(this.toolbarContainer?.nativeElement, {
+      css: "dhx_widget--bordered dhx_widget--bg_white",
+      navigationType: "pointer",
+    });
 
-    const newLocal = this.container;
+    this.toolbar.data.load("/toolbar-timesheet.json");
+
+    console.log('init grid...')
+    console.log('cont: ' + this.gridContainer)
+
+    const newLocal = this.gridContainer;
     // initialize grid component
+    // TODO: delete, undelete, clone actions
+    // TODO: batch-update via gsheet api
+    // TODO: data correlation id
+    // TODO: row formatting
+    // TODO: date filtering
     this.grid = new GridDHX(newLocal?.nativeElement, {
       columns: [
-        { id: "productTicket", header: [{ text: "Product Ticket" }] },
-        { id: "supportTicket", header: [{ text: "Support Ticket" }] },
+        { id: "row", width: 40, header: [{ text: "S/N" }], type: "number" },
+        { id: "productTicket", width: 125, header: [{ text: "Product Ticket" }] },
+        { id: "supportTicket", width: 125, header: [{ text: "Support Ticket" }] },
         { id: "customer", header: [{ text: "Customer" }] },
         { id: "summary", header: [{ text: "Summary" }] },
         {
@@ -42,25 +60,21 @@ export class TimesheetComponent implements OnDestroy {
           editorType: "select", options: ["Coding", "Replication", "Analysis", "Unit Testing", "Functional Tesing", "Test Doc", "SIT", "Smoke Testing", "See Remarks"]
         },
         {
-          id: "category", header: [{ text: "Category" }],
+          id: "category", width: 85, header: [{ text: "Category" }],
           editorType: "select", options: ["Support", "Delivery", "Internal"]
         },
-        { id: "date", header: [{ text: "Date" }] },
-        { id: "regHours", header: [{ text: "Regular Hours" }], type: "number" },
-        { id: "vaHours", header: [{ text: "Value Added Hours" }], type: "number" },
-        { id: "otHours", header: [{ text: "OT Hours" }], type: "number" },
+        { id: "date", width: 100, header: [{ text: "Date" }] },
+        { id: "regHours", width: 85, header: [{ text: "Reg Hours" }], type: "number" },
+        { id: "vaHours", width: 85, header: [{ text: "Value Added" }], type: "number" },
+        { id: "otHours", width: 85, header: [{ text: "OT Hours" }], type: "number" },
         {
-          id: "status", header: [{ text: "Status" }],
+          id: "status", width: 85, header: [{ text: "Status" }],
           editorType: "select", options: ["In-Progress", "On-Hold", "Done"]
         },
         { id: "remarks", header: [{ text: "Remarks" }] },
         { id: "actions", header: [{ text: "Actions" }] },
       ],
-      rowHeight: 60,
       autoWidth: true,
-      editable: true,
-      multiselection: true,
-      selection: "complex",
     });
 
     this.grid.data.add(this.timesheets);
@@ -90,6 +104,10 @@ export class TimesheetComponent implements OnDestroy {
     if (this.grid) {
       console.log('destoying grid')
       this.grid.destructor();
+    }
+
+    if(this.toolbar) {
+      this.toolbar.destructor();
     }
   }
 
