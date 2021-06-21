@@ -8,6 +8,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { MaintabComponent } from './maintab/maintab.component';
 import { TimesheetComponent } from './timesheet/timesheet.component';
 import { WelcomeComponent } from './welcome/welcome.component';
+import { TimesheetAddComponent } from './timesheet-add/timesheet-add.component';
+import { PopupComponent } from './popup/popup.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +17,9 @@ import { WelcomeComponent } from './welcome/welcome.component';
     MenuComponent,
     MaintabComponent,
     TimesheetComponent,
-    WelcomeComponent
+    WelcomeComponent,
+    TimesheetAddComponent,
+    PopupComponent
   ],
   imports: [
     BrowserModule,
