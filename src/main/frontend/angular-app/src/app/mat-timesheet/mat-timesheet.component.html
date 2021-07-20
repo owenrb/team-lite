@@ -1,0 +1,90 @@
+<div class="table-container">
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+    <!--- Note that these columns can be defined in any order.
+          The actual rendered columns are set as a property on the row definition" -->
+
+    <ng-container matColumnDef="row">
+      <th mat-header-cell *matHeaderCellDef> S/N </th>
+      <td mat-cell *matCellDef="let timesheet"> {{timesheet.row}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="productTicket">
+      <th mat-header-cell *matHeaderCellDef> Product Ticket </th>
+      <td mat-cell *matCellDef="let timesheet"> {{timesheet.productTicket}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="supportTicket">
+      <th mat-header-cell *matHeaderCellDef> Support Ticket </th>
+      <td mat-cell *matCellDef="let timesheet"> {{timesheet.supportTicket}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="customer">
+      <th mat-header-cell *matHeaderCellDef> Customer </th>
+      <td mat-cell *matCellDef="let timesheet"> {{timesheet.customer}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="summary">
+      <th mat-header-cell *matHeaderCellDef> Summary </th>
+      <td mat-cell *matCellDef="let timesheet"> {{timesheet.summary}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="activity">
+      <th mat-header-cell *matHeaderCellDef> Activity </th>
+      <td mat-cell *matCellDef="let timesheet"> {{timesheet.activity}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="category">
+      <th mat-header-cell *matHeaderCellDef> Category </th>
+      <td mat-cell *matCellDef="let timesheet"> {{timesheet.category}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="date">
+      <th mat-header-cell *matHeaderCellDef> Date </th>
+      <td mat-cell *matCellDef="let timesheet"> {{timesheet.date | date:'yyyy-MM-dd'}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="regHours">
+      <th mat-header-cell *matHeaderCellDef> Reg Hours </th>
+      <td mat-cell *matCellDef="let timesheet"> {{timesheet.regHours}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="vaHours">
+      <th mat-header-cell *matHeaderCellDef> Value Added </th>
+      <td mat-cell *matCellDef="let timesheet"> {{timesheet.vaHours}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="otHours">
+      <th mat-header-cell *matHeaderCellDef> OT Hours </th>
+      <td mat-cell *matCellDef="let timesheet"> {{timesheet.otHours}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef> Status </th>
+      <td mat-cell *matCellDef="let timesheet"> {{timesheet.status}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="remarks">
+      <th mat-header-cell *matHeaderCellDef> Remarks </th>
+      <td mat-cell *matCellDef="let timesheet"> {{timesheet.remarks}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+      <th mat-header-cell *matHeaderCellDef> Action </th>
+      <td mat-cell *matCellDef="let timesheet">
+
+        <app-mat-timesheet-edit [sheetId]="sheetId" [rowId]='timesheet.row' [timesheet]='timesheet'></app-mat-timesheet-edit>
+
+        <app-mat-timesheet-clone [sheetId]="sheetId" [timesheet]='timesheet'></app-mat-timesheet-clone>
+
+        <button mat-icon-button color="warn" aria-label="Delete record" (click)="openDeleteDialog(timesheet.row)">
+          <mat-icon>delete</mat-icon>
+        </button>
+
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>

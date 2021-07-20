@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -14,8 +13,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -88,7 +91,32 @@ public class SheetController {
 
 		return result;
 	}
+	
+	/**
+	 * CREATE 
+	 * 
+	 * @param spreadsheetId
+	 * @param timesheet
+	 * @throws GeneralSecurityException
+	 * @throws IOException
+	 */
+	@PostMapping(path = "timesheets/{sheetId}")
+	public void createTimesheet(@PathVariable("sheetId") String spreadsheetId, @RequestBody Timesheet timesheet) throws GeneralSecurityException, IOException {
+		
+		System.out.println("create: " + timesheet);
 
+		final String range = "Timesheet!A2:L";
+		gsheetHelper.appendTimesheet(clientService, spreadsheetId, range, timesheet);
+	}
+
+	/**
+	 * READ
+	 * 
+	 * @param spreadsheetId
+	 * @return
+	 * @throws GeneralSecurityException
+	 * @throws IOException
+	 */
 	@GetMapping(path = "timesheets/{sheetId}")
 	public List<Timesheet> getTimesheets(@PathVariable("sheetId") String spreadsheetId)
 			throws GeneralSecurityException, IOException {
@@ -97,96 +125,50 @@ public class SheetController {
 		List<List<Object>> values =  gsheetHelper.fetch(clientService, spreadsheetId, range);
 
 		if (values != null) {
-			return IntStream.range(0, values.size()).mapToObj(i -> toTimesheet(values.get(i), i+2))
+			return IntStream.range(0, values.size()).mapToObj(i -> gsheetHelper.toTimesheet(values.get(i), i+2))
 					.collect(Collectors.toList());
 		}
 
 		return Collections.emptyList();
 	}
+	
+	/**
+	 * UPDATE
+	 * 
+	 * @param spreadsheetId
+	 * @param row
+	 * @param timesheet
+	 * @return
+	 * @throws GeneralSecurityException
+	 * @throws IOException
+	 */
+	@PutMapping(path = "timesheets/{sheetId}/{row}")
+	public Timesheet updateTimesheet(@PathVariable("sheetId") String spreadsheetId, @PathVariable("row") int row,
+			@RequestBody Timesheet timesheet) throws GeneralSecurityException, IOException {
 
-	private Timesheet toTimesheet(List<Object> row, int rowId) {
-
-		Timesheet timesheet = new Timesheet();
-		timesheet.setRow(rowId);
-
-		int columns = row.size();
-
-		int column = 0;
-
-		if (columns > column) {
-			String value = (String) row.get(column++);
-			timesheet.setProductTicket(value);
-		}
-
-		if (columns > column) {
-			String value = (String) row.get(column++);
-			timesheet.setSupportTicket(value);
-		}
-
-		if (columns > column) {
-			String value = (String) row.get(column++);
-			timesheet.setCustomer(value);
-		}
-
-		if (columns > column) {
-			String value = (String) row.get(column++);
-			timesheet.setSummary(value);
-		}
-
-		if (columns > column) {
-			String value = (String) row.get(column++);
-			timesheet.setActivity(value);
-		}
-
-		if (columns > column) {
-			String value = (String) row.get(column++);
-			timesheet.setCategory(value);
-		}
-
-		if (columns > column) {
-			String value = (String) row.get(column++);
-			
-			// TODO
-			System.out.println(value);
-			
-			timesheet.setDate(new Date());
-		}
-
-		if (columns > column) {
-			String value = (String) row.get(column++);
-			try {
-				timesheet.setRegHours(Float.valueOf(value));
-			} catch (Exception e) {
-			}
-		}
-
-		if (columns > column) {
-			String value = (String) row.get(column++);
-			try {
-				timesheet.setVaHours(Float.valueOf(value));
-			} catch (Exception e) {
-			}
-		}
-
-		if (columns > column) {
-			String value = (String) row.get(column++);
-			try {
-				timesheet.setOtHours(Float.valueOf(value));
-			} catch (Exception e) {
-			}
-		}
-
-		if (columns > column) {
-			String value = (String) row.get(column++);
-			timesheet.setStatus(value);
-		}
-
-		if (columns > column) {
-			String value = (String) row.get(column++);
-			timesheet.setRemarks(value);
-		}
-
+		final String range = String.format("Timesheet!A%d:L%d", row, row);
+		gsheetHelper.updateTimesheet(clientService, spreadsheetId, range, timesheet);
+		
+		
 		return timesheet;
+		
 	}
+	
+
+	/**
+	 * DELETE
+	 * 
+	 * @param spreadsheetId
+	 * @param row
+	 * @throws GeneralSecurityException
+	 * @throws IOException
+	 */
+	@DeleteMapping(path = "timesheets/{sheetId}/{row}")
+	public void deleteTimesheet(@PathVariable("sheetId") String spreadsheetId, @PathVariable("row") int row) throws GeneralSecurityException, IOException {
+		
+		gsheetHelper.deleteTimesheet(clientService, spreadsheetId, row);
+	}
+	
+
 
 }

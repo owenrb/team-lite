@@ -12,4 +12,8 @@ export class WelcomeComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  onAddEvent(status: string): void {
+    console.log('received: ' + status)
+  }
+
 }

@@ -6,7 +6,7 @@ export class Timesheet {
 	summary = ''
 	activity = ''
 	category = ''
-	date = ''
+	date = 'YYYY-MM-DD'
 	regHours = 0.0
 	vaHours = 0.0
 	otHours = 0.0

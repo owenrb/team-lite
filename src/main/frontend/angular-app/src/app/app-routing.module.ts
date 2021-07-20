@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { TimesheetComponent } from './timesheet/timesheet.component'
+import { MatTimesheetPageComponent } from './mat-timesheet-page/mat-timesheet-page.component'
 import { WelcomeComponent } from './welcome/welcome.component'
 
 const routes: Routes = [ 
   {path: 'team/welcome', component: WelcomeComponent },
-  {path: 'team/timesheet/:sheetId', component: TimesheetComponent },
+  {path: 'team/timesheet/:sheetId', component: MatTimesheetPageComponent },
   {path: '', redirectTo: '/team/welcome', pathMatch: 'full'}
 ];
 

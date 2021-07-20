@@ -1,6 +1,9 @@
 package io.owenrbee.team.model;
 
+import java.text.Format;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 public class Timesheet {
 	
@@ -17,6 +20,19 @@ public class Timesheet {
 	private Float otHours;
 	private String status;
 	private String remarks;
+	
+	@Override
+	public String toString() {
+		return String.format("{row: %d, productTicket: '%s', supportTicket: '%s', customer: '%s, summary: '%s'"
+				+ ", activity: '%s', category: '%s', date: '%s', regHours: %f, vaHours: %f, otHours: %f, status: '%s', remarks: '%s'}", 
+				row, productTicket, supportTicket, customer, summary, activity, category, date, 
+				regHours, vaHours, otHours, status, remarks);
+	}
+	
+	public List<Object> asList(Format dateFormat) {
+		return Arrays.asList(productTicket, supportTicket, customer, summary, activity, category, date == null ?  "" : dateFormat.format(date), 
+				regHours, vaHours, otHours, status, remarks);
+	}
 	
 	public String getProductTicket() {
 		return productTicket;

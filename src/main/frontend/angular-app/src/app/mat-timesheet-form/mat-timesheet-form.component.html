@@ -1,0 +1,108 @@
+<h3>{{title}}</h3>
+<form class="form-container" [formGroup]="timesheetForm" #par>
+    <input type="hidden" formControlName="row" value="{{timesheet.row}}" />
+    <div fxLayout="row">
+        <mat-form-field appearance="fill" fxFlex="24%">
+            <mat-label>Product Ticket</mat-label>
+            <input matInput formControlName="productTicket">
+            <mat-error>
+                Enter product ticket
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" fxFlex="24%">
+            <mat-label>Support Ticket</mat-label>
+            <input matInput formControlName="supportTicket">
+            <mat-error>
+                Enter support ticket
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" fxFlex="25%">
+            <mat-label>Customer</mat-label>
+            <mat-select required formControlName="customer">
+                <mat-option *ngFor="let customer of customers" value="{{customer}}">{{customer}}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="timesheetForm.get('customer')?.hasError('required')">
+                Customer is required
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" fxFlex="25%">
+            <mat-label>Category</mat-label>
+            <mat-select required formControlName="category">
+                <mat-option value="Support">Support</mat-option>
+                <mat-option value="Delivery">Delivery</mat-option>
+                <mat-option value="Internal">Internal</mat-option>
+            </mat-select>
+            <mat-error *ngIf="timesheetForm.get('category')?.hasError('required')">
+                Category is required
+            </mat-error>
+        </mat-form-field>
+    </div>
+    <div fxLayout="row">
+        <mat-form-field appearance="fill" fxFlex="24%">
+            <mat-label>Date</mat-label>
+            <input matInput [matDatepicker]="picker" required formControlName="date">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-error *ngIf="timesheetForm.get('date')?.hasError('required')">
+                Date is required
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" fxFlex="76%">
+            <mat-label>Summary</mat-label>
+            <input matInput placeholder="Description or title" formControlName="summary">
+        </mat-form-field>
+
+    </div>
+    <div fxLayout="row">
+        <mat-form-field appearance="fill" fxFlex="20%">
+            <mat-label>EOD Status</mat-label>
+            <mat-select required formControlName="status">
+                <mat-option value="In-Progress">In-Progress</mat-option>
+                <mat-option value="On-Hold">On-Hold</mat-option>
+                <mat-option value="Re-Assigned">Re-Assigned</mat-option>
+                <mat-option value="Done">Done</mat-option>
+            </mat-select>
+            <mat-error *ngIf="timesheetForm.get('status')?.hasError('required')">
+                Status is required
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" fxFlex="40%">
+            <mat-label>Activity</mat-label>
+            <input matInput placeholder="What task has been done?" formControlName="activity">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" fxFlex="40%">
+            <mat-label>Remarks</mat-label>
+            <input matInput placeholder="Optional notes..." formControlName="remarks">
+        </mat-form-field>
+
+    </div>
+    <div>
+        <app-mat-time label="    Regular Hours" width=182 formControlName="regHours">
+        </app-mat-time>
+        <app-mat-time label="    Value Added Hours" width=215 formControlName="vaHours">
+        </app-mat-time>
+        <app-mat-time label="    OT Hours" width=151 formControlName="otHours">
+        </app-mat-time>
+        <div *ngIf="timesheetForm.errors?.noHour" class="ts-form-error">
+            Please enter working hour</div>
+    </div>
+
+    <section>
+        <div class="example-button-row" fxLayout="row" fxLayoutAlign="center">
+            <button mat-button color="warn" (click)="onNoClick()">Cancel</button>&nbsp;
+            <button mat-raised-button color="primary" type="submit" [mat-dialog-close]="timesheetForm.value" 
+                [disabled]="timesheetForm.invalid">Save</button>
+        </div>
+    </section>
+
+<!--
+<p>Form value: {{ timesheetForm.value | json }}</p>
+<p>Form status: {{ timesheetForm.errors | json }}</p>
+-->
+</form>
