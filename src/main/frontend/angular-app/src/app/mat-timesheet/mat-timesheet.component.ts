@@ -2,10 +2,12 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClientService } from '../service/http-client.service';
 import { Timesheet } from '../model/Timesheet'
-import {MatDialog} from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTimesheetDeleteComponent } from '../mat-timesheet-delete/mat-timesheet-delete.component';
-import {  MatSnackBar } from '@angular/material/snack-bar';
-import { SnackbarConst} from '../model/SnackbarConst'
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarConst } from '../model/SnackbarConst'
+import { DatePipe, formatCurrency } from '@angular/common';
+import * as moment from 'moment';
 
 
 @Component({
@@ -18,10 +20,15 @@ export class MatTimesheetComponent implements OnInit {
   @Input()
   testMode: boolean = false
 
+  @Input()
+  filterFrom: string | null = null
+  @Input()
+  filterTo: string | null = null
+
 
   displayedColumns: string[] = [
-    'row', 'productTicket', 'supportTicket', 'customer', 'summary', 'activity', 'category', 'date', 'regHours', 'vaHours','otHours','status','remarks', 'action'
-    ];
+    'row', 'productTicket', 'supportTicket', 'customer', 'summary', 'activity', 'category', 'date', 'regHours', 'vaHours', 'otHours', 'status', 'remarks', 'action'
+  ];
   dataSource: Timesheet[] = [];
 
   @Input()
@@ -32,21 +39,40 @@ export class MatTimesheetComponent implements OnInit {
     private httpClientService: HttpClientService,
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
-    public dialog: MatDialog) { 
+    public dialog: MatDialog,
+    private datePipe: DatePipe) {
 
     this.sheetId = null
+  }
+
+  get filtered(): Timesheet[] {
+    if (this.filterFrom && this.filterTo) {
+
+      var from = moment(this.filterFrom, "yyyy-MM-dd");
+      var to = moment(this.filterTo, "yyyy-MM-dd");
+      
+      if(from.isValid() && to.isValid())  {
+
+        return this.dataSource.filter(timesheet => {
+          var date = moment(timesheet.date, "yyyy-MM-dd");
+          return date.isValid() && date.isBetween(from, to, 'days', '[]');
+        });
+      }
 
 
+    }
+
+    return this.dataSource
   }
 
 
   ngOnInit(): void {
-    
+
     this.fetch();
 
   }
 
-  fetch() : void {
+  fetch(): void {
 
     console.log('fetching....');
 
@@ -57,22 +83,22 @@ export class MatTimesheetComponent implements OnInit {
 
   openDeleteDialog(row: string): void {
     console.log("delete: " + row)
-    const dialogRef = this.dialog.open(MatTimesheetDeleteComponent, {data: row});
+    const dialogRef = this.dialog.open(MatTimesheetDeleteComponent, { data: row });
 
 
     dialogRef.afterClosed().subscribe(rowNum => {
       console.log('The dialog was closed! ' + JSON.stringify(rowNum));
 
-      if(rowNum) {
+      if (rowNum) {
         this.httpClientService.deleteTimesheet(this.sheetId, rowNum)
-        .subscribe(result => {
+          .subscribe(result => {
             // refresh
             this.fetch();
-        },
-        error => {
-          console.log("error: " + JSON.stringify(error))
-          new SnackbarConst().open(this.snackBar, error.message);
-        })
+          },
+            error => {
+              console.log("error: " + JSON.stringify(error))
+              new SnackbarConst().open(this.snackBar, error.message);
+            })
       }
     })
   }

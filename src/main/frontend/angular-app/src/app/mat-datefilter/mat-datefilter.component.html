@@ -1,14 +1,14 @@
-<div fxLayout="row" fxLayoutAlign="space-between">
+<div fxLayout="row" fxLayoutAlign="space-between" [formGroup]="dateFilterGroup">
     <div>
         <mat-form-field appearance="fill">
             <mat-label>Enter a date range</mat-label>
             <mat-date-range-input [rangePicker]="picker">
-              <input matStartDate placeholder="Start date">
-              <input matEndDate placeholder="End date">
+              <input matStartDate placeholder="Start date" formControlName="fromDate" (dateInput)="datePickerEvent('start', $event)">
+              <input matEndDate placeholder="End date" formControlName="toDate" (dateInput)="datePickerEvent('end', $event)">
             </mat-date-range-input>
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-date-range-picker #picker></mat-date-range-picker>
           </mat-form-field>
     </div>
-    <div fxFlex="50%"><ngx-slider [(value)]="minValue" [(highValue)]="maxValue" [options]="options"></ngx-slider></div>
+    <div fxFlex="50%"><ngx-slider [(value)]="minValue" [(highValue)]="maxValue" [options]="options" (userChange)="onSliderChange($event)"></ngx-slider></div>
 </div>
