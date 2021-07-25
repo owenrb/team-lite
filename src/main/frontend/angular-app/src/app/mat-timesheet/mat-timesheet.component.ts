@@ -8,6 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarConst } from '../model/SnackbarConst'
 import { DatePipe, formatCurrency } from '@angular/common';
 import * as moment from 'moment';
+import { connectableObservableDescriptor } from 'rxjs/internal/observable/ConnectableObservable';
 
 
 @Component({
@@ -54,8 +55,10 @@ export class MatTimesheetComponent implements OnInit {
       if(from.isValid() && to.isValid())  {
 
         return this.dataSource.filter(timesheet => {
-          var date = moment(timesheet.date, "yyyy-MM-dd");
-          return date.isValid() && date.isBetween(from, to, 'days', '[]');
+          var date = moment(timesheet.date.split('T')[0], "yyyy-MM-dd");
+          var res =  date.isValid() && date.isBetween(from, to, 'days', '[]');
+
+          return res;
         });
       }
 

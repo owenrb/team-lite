@@ -1,2 +1,3 @@
-<app-mat-timesheet #timesheet [sheetId]='sheetId'></app-mat-timesheet>
+<app-mat-datefilter (dateRangeEvent)="onDateRangeChanged($event)"></app-mat-datefilter>
+<app-mat-timesheet #timesheet [sheetId]='sheetId' [filterFrom]='filterFrom' [filterTo]='filterTo'></app-mat-timesheet>
 <app-mat-timesheet-add [sheetId]='sheetId' (addEvent)="onAddEvent($event)"></app-mat-timesheet-add>
